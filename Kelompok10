@@ -1,0 +1,141 @@
+class Node {
+    int data;
+    Node left, right;
+    int height;
+
+    Node(int data) {
+        this.data = data;
+        this.left = null;
+        this.right = null;
+        this.height = 1;
+    }
+}
+
+class AVLTree {
+    Node root;
+
+    AVLTree() {
+        this.root = null;
+    }
+
+    int getHeight(Node node) {
+        if (node == null)
+            return 0;
+        return node.height;
+    }
+
+    int getBalanceFactor(Node node) {
+        if (node == null)
+            return 0;
+        return getHeight(node.left) - getHeight(node.right);
+    }
+
+    Node rotateLeft(Node z) {
+        Node y = z.right;
+        Node T2 = y.left;
+
+        y.left = z;
+        z.right = T2;
+
+        z.height = 1 + Math.max(getHeight(z.left), getHeight(z.right));
+        y.height = 1 + Math.max(getHeight(y.left), getHeight(y.right));
+
+        return y;
+    }
+
+    Node rotateRight(Node z) {
+        Node y = z.left;
+        Node T3 = y.right;
+
+        y.right = z;
+        z.left = T3;
+
+        z.height = 1 + Math.max(getHeight(z.left), getHeight(z.right));
+        y.height = 1 + Math.max(getHeight(y.left), getHeight(y.right));
+
+        return y;
+    }
+
+    Node insertNode(Node node, int key) {
+        if (node == null)
+            return new Node(key);
+        if (key < node.data)
+            node.left = insertNode(node.left, key);
+        else if (key > node.data)
+            node.right = insertNode(node.right, key);
+        else
+            return node;
+
+        node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
+
+        int balanceFactor = getBalanceFactor(node);
+
+        if (balanceFactor > 1) {
+            if (key < node.left.data)
+                return rotateRight(node);
+            else {
+                node.left = rotateLeft(node.left);
+                return rotateRight(node);
+            }
+        }
+
+        if (balanceFactor < -1) {
+            if (key > node.right.data)
+                return rotateLeft(node);
+            else {
+                node.right = rotateRight(node.right);
+                return rotateLeft(node);
+            }
+        }
+
+        return node;
+    }
+
+    void preOrderTraversal(Node node) {
+        if (node != null) {
+            System.out.print(node.data + " ");
+            preOrderTraversal(node.left);
+            preOrderTraversal(node.right);
+        }
+    }
+
+    Node searchNode(Node node, int key, int depth) {
+        if (node == null || node.data == key)
+            return node;
+
+        if (node.data < key)
+            return searchNode(node.right, key, depth + 1);
+
+        return searchNode(node.left, key, depth + 1);
+    }
+
+    int getDepth(Node node, int key, int depth) {
+        if (node == null || node.data == key)
+            return depth;
+
+        if (node.data < key)
+            return getDepth(node.right, key, depth + 1);
+
+        return getDepth(node.left, key, depth + 1);
+    }
+}
+
+public class Kelompok10 {
+    public static void main(String[] args) {
+        AVLTree tree = new AVLTree();
+
+        int[] data = { 3, 10, 40, 82, 42, 8, 28 };
+
+        for (int val : data)
+            tree.root = tree.insertNode(tree.root, val);
+
+        int[] keys = { 10, 42, 5 };
+        for (int key : keys) {
+            Node node = tree.searchNode(tree.root, key, 1);
+            if (node != null)
+                System.out.println("Data " + key + " ditemukan pada kedalaman " + tree.getDepth(tree.root, key, 1));
+            else
+                System.out.println("Data " + key + " tidak ditemukan");
+        }
+    }
+}    
