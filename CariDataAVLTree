@@ -1,0 +1,107 @@
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.left = None
+        self.right = None
+        self.height = 1
+
+
+def search_node(root, key, depth=1):
+    if root is None or root.data == key:
+        return root, depth
+
+    if root.data < key:
+        return search_node(root.right, key, depth + 1)
+
+    return search_node(root.left, key, depth + 1)
+
+
+# AVL Tree
+def insert_node(root, key):
+    if not root:
+        return Node(key)
+    elif key < root.data:
+        root.left = insert_node(root.left, key)
+    else:
+        root.right = insert_node(root.right, key)
+
+    root.height = 1 + max(get_height(root.left), get_height(root.right))
+
+    balance_factor = get_balance_factor(root)
+
+    if balance_factor > 1:
+        if key < root.left.data:
+            return rotate_right(root)
+        else:
+            root.left = rotate_left(root.left)
+            return rotate_right(root)
+
+    if balance_factor < -1:
+        if key > root.right.data:
+            return rotate_left(root)
+        else:
+            root.right = rotate_right(root.right)
+            return rotate_left(root)
+
+    return root
+
+
+def get_height(root):
+    if root is None:
+        return 0
+    return root.height
+
+
+def get_balance_factor(root):
+    if root is None:
+        return 0
+    return get_height(root.left) - get_height(root.right)
+
+
+def rotate_left(z):
+    y = z.right
+    T2 = y.left
+
+    y.left = z
+    z.right = T2
+
+    z.height = 1 + max(get_height(z.left), get_height(z.right))
+    y.height = 1 + max(get_height(y.left), get_height(y.right))
+
+    return y
+
+
+def rotate_right(z):
+    y = z.left
+    T3 = y.right
+
+    y.right = z
+    z.left = T3
+
+    z.height = 1 + max(get_height(z.left), get_height(z.right))
+    y.height = 1 + max(get_height(y.left), get_height(y.right))
+
+    return y
+
+
+# Membangun AVL Tree
+def build_avl_tree(arr):
+    root = None
+    for val in arr:
+        root = insert_node(root, val)
+    return root
+
+
+# Contoh penggunaan
+data = [3, 10, 40, 82, 42, 8, 28]
+root = build_avl_tree(data)
+
+# Pencarian dan menghitung kedalaman
+keys = [10, 42, 5]
+
+for key in keys:
+    node, depth = search_node(root, key)
+    if node:
+        print(f"Data {key} ditemukan pada kedalaman {depth}")
+    else:
+        print(f"Data {key} tidak ditemukan")
